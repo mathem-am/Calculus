@@ -1,0 +1,70 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+def f(x):
+    """Define the function to integrate."""
+    return np.sin(x) + 2
+
+# 1. Setup parameters
+a = 0                  # Lower bound
+b = np.pi * 1.5        # Upper bound
+n = 10                 # Number of subintervals/rectangles
+type_sum = 'midpoint'  # Options: 'left', 'right', 'midpoint'
+
+# 2. Generate data for the smooth curve
+x_curve = np.linspace(a, b, 200)
+y_curve = f(x_curve)
+
+# 3. Calculate subinterval width and partition points
+dx = (b - a) / n
+x_intervals = np.linspace(a, b, n + 1)
+
+# 4. Determine evaluation points and compute Riemann sums
+if type_sum == 'left':
+    x_eval = x_intervals[:-1]
+    align = 'edge'
+    width_val = dx
+    label_name = f'Left Riemann Sum (n={n})'
+elif type_sum == 'right':
+    x_eval = x_intervals[1:]
+    align = 'edge'
+    width_val = -dx  # Shifts the bar drawing direction to the left
+    label_name = f'Right Riemann Sum (n={n})'
+elif type_sum == 'midpoint':
+    x_eval = x_intervals[:-1] + dx / 2
+    align = 'center'
+    width_val = dx
+    label_name = f'Midpoint Riemann Sum (n={n})'
+
+# Calculate the areas
+riemann_sum = np.sum(f(x_eval) * np.abs(dx))
+
+# Exact analytical area using calculus: 
+# \int_{0}^{1.5\pi} (sin(x) + 2) dx = [-cos(x) + 2x] from 0 to 1.5\pi = 3\pi + 1
+exact_area = 3 * np.pi + 1
+
+# 5. Create the visualization plot
+fig, ax = plt.subplots(figsize=(10, 6))
+
+# Plot the continuous function curve
+ax.plot(x_curve, y_curve, 'r-', linewidth=2.5, label=r'$f(x) = \sin(x) + 2$')
+
+# Plot the approximating rectangles
+ax.bar(x_eval, f(x_eval), width=width_val, alpha=0.4, 
+       edgecolor='blue', color='skyblue', align=align, label=label_name)
+
+# Mark the evaluation points where the height of each rectangle touches the curve
+ax.scatter(x_eval, f(x_eval), color='darkblue', zorder=5, s=35, label='Evaluation Points')
+
+# Labeling and styling
+ax.set_title(f'Riemann Sum Visualization ({type_sum.capitalize()} Rule)\n'
+             f'Approximate Area = {riemann_sum:.4f} | Exact Area = {exact_area:.4f}', fontsize=14)
+ax.set_xlabel('x', fontsize=12)
+ax.set_ylabel('y', fontsize=12)
+ax.set_xlim(a - 0.2, b + 0.2)
+ax.set_ylim(0, 3.5)
+ax.grid(True, linestyle='--', alpha=0.5)
+ax.legend(loc='upper right', fontsize=11)
+
+plt.tight_layout()
+plt.show()
